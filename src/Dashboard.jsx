@@ -191,6 +191,8 @@ const Dashboard = (props) => {
     setOpenModal3(false);
   };
 
+  const [saleId, setSaleId] = React.useState(0);
+
   return (
     <div>
       {
@@ -479,6 +481,122 @@ const Dashboard = (props) => {
                     }
                     }}>
             DAR DE BAJA
+          </Button>
+          
+</Grid>
+        </Box>
+          </Modal>
+          </Grid>
+          <Grid container justifyContent="center">
+          <Button
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={async () => {
+                const response = await fetch(`http://localhost:8080/ventas/crear`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json"},
+                      body: JSON.stringify({})
+                    }).then(res => res.json())
+                    .then(data => {
+                      console.log(data.ventaId)
+                      Swal.fire(
+                        'Venta creada',
+                        `Venta creada exitosamente! ID de venta: ${data.ventaId}`,
+                        'success'
+                      )
+                    })
+              }}
+            >
+              Crear venta
+            </Button>
+          </Grid>
+          <Grid container justifyContent="center">
+          <Button
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={async () => {
+                let arrayVentas = []
+                let idVenta = prompt("Digitar id de venta:");
+                let cuantosProductos = prompt("Digitar cuantos productos se venderan")
+                cuantosProductos = parseInt(cuantosProductos)
+                console.log(cuantosProductos)
+                for(let i = 0; i < cuantosProductos; i++) {
+                  let idProducto = prompt(`Digitar ID de producto numero ${i+1}`)
+                  let qtyProducto = prompt(`Cuantas unidades de producto ${i+1} se venderan`)
+                  arrayVentas.push({
+                    id: {
+                      venta: {
+                        ventaId: parseInt(idVenta)
+                      },
+                      producto: {
+                        productoId: parseInt(idProducto)
+                      }
+                    },
+                    ventasContienenProductosUnidades: parseInt(qtyProducto)
+                  })
+                }
+                console.log(arrayVentas)
+                const response = await fetch(`http://localhost:8080/ventasContienenProductos/crear`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json"},
+                      body: JSON.stringify(arrayVentas)
+                    })
+                    if(response.status === 200) {
+                      Swal.fire(
+                        'Venta configurada',
+                        'La venta asignada ya posee productos',
+                        'success'
+                      )
+                      setTimeout(function(){ window.location.reload(); }, 1250);
+                    } else {
+                      Swal.fire(
+                        'Error completado venta',
+                        'Hubo un error completado la venta',
+                        'error'
+                      )
+                    }
+              }}
+            >
+              Añadir productos a venta
+            </Button>
+          </Grid>
+          <Grid container justifyContent="center">
+          <Button
+              variant="contained"
+              color="secondary"
+              className={classes.submit}
+              onClick={handleOpen3}
+            >
+              Ir a factura de venta
+            </Button>
+            <Modal
+            open={openModal3}
+            onClose={handleClose3}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Factura de venta
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            En esta sección tienes permitido ir a revisar una factura de venta
+          </Typography>
+          <p id="simple-modal-description">
+            Por favor escriba el ID de la Venta a revisar
+          </p>
+          <div>
+          <TextField value={saleId}  onChange={(event) => {setSaleId(event.target.value)}}/>
+          </div>
+          <Grid container justifyContent="center">
+          <Button variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                      props.history.push(`/venta/${saleId}`)
+                    }}>
+            IR A PAGINA DE FACTURA VENTA
           </Button>
           
 </Grid>
