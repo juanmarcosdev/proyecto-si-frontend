@@ -147,7 +147,6 @@ const Dashboard = (props) => {
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
-  const [openModal, setOpenModal] = React.useState(false);
 
   const [productName, setProductName] = React.useState("");
   const [productInfo, setProductInfo] = React.useState("");
@@ -155,6 +154,12 @@ const Dashboard = (props) => {
   const [productPrice2, setProductPrice2] = React.useState("");
   const [productQty, setProductQty] = React.useState("");
 
+  const [productIDEDIT, setProductIDEDIT] = React.useState("");
+  const [productPrice1EDIT, setProductPrice1EDIT] = React.useState("");
+  const [productPrice2EDIT, setProductPrice2EDIT] = React.useState("");
+  const [productQtyEDIT, setProductQtyEDIT] = React.useState("");
+
+  const [openModal, setOpenModal] = React.useState(false);
 
   const handleOpen = () => {
     setOpenModal(true);
@@ -162,6 +167,16 @@ const Dashboard = (props) => {
 
   const handleClose = () => {
     setOpenModal(false);
+  };
+
+  const [openModal2, setOpenModal2] = React.useState(false);
+
+  const handleOpen2 = () => {
+    setOpenModal2(true);
+  };
+
+  const handleClose2 = () => {
+    setOpenModal2(false);
   };
 
   return (
@@ -221,7 +236,6 @@ const Dashboard = (props) => {
         <Divider />
         <List>{mainListItems}</List>
         <Divider />
-        <List>{secondaryListItems}</List>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
@@ -315,6 +329,84 @@ const Dashboard = (props) => {
               </Paper>
             </Grid>
           </Grid>
+          <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={handleOpen2}
+            >
+              Editar Precio proveedor, Precio venta y Existencias de Producto
+            </Button>
+            <Modal
+            open={openModal2}
+            onClose={handleClose2}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Editar producto
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            En esta sección tienes permitido editar información puntual de productos
+          </Typography>
+          <p id="simple-modal-description">
+            Por favor escriba el ID del Producto a editar
+          </p>
+          <div>
+          <TextField value={productIDEDIT}  onChange={(event) => {setProductIDEDIT(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba el nuevo precio de Proveedor
+          </p>
+      <TextField value={productPrice1EDIT}  onChange={(event) => {setProductPrice1EDIT(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba el nuevo precio del Producto a Público
+          </p>
+      <TextField value={productPrice2EDIT}  onChange={(event) => {setProductPrice2EDIT(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba la nueva cantidad de Existencias del Producto
+          </p>
+      <TextField value={productQtyEDIT}  onChange={(event) => {setProductQtyEDIT(event.target.value)}}/>
+          </div>
+          <Grid container justifyContent="center">
+          <Button variant="contained"
+                    color="secondary"
+                    onClick={async () => {
+                      let object_product = {
+                        productoId: parseInt(productIDEDIT),
+                        productoPrecioProveedor: parseInt(productPrice1EDIT),
+                        productoPrecio: parseInt(productPrice2EDIT),
+                        productoExistencias: parseInt(productQtyEDIT),
+                        productoEstado: 1
+                      }
+                      const response = await fetch(`http://localhost:8080/productos/editar`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json"},
+                      body: JSON.stringify(object_product)
+                    })
+                    if(response.status === 200) {
+                      handleClose2()
+                      Swal.fire(
+                        'Producto editado',
+                        'Producto editado exitosamente!',
+                        'success'
+                      )
+                      setTimeout(function(){ window.location.reload(); }, 1500);
+                    } else {
+                      handleClose()
+                      Swal.fire(
+                        'Error al editar producto',
+                        'Hubo un error editando el producto',
+                        'error'
+                      )
+                    }
+                    }}>
+            EDITAR
+          </Button>
+</Grid>
+        </Box>
+          </Modal>
           <Box pt={4}>
             <Copyright />
           </Box>
