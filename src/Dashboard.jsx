@@ -159,6 +159,8 @@ const Dashboard = (props) => {
   const [productPrice2EDIT, setProductPrice2EDIT] = React.useState("");
   const [productQtyEDIT, setProductQtyEDIT] = React.useState("");
 
+  const [productIDDELETE, setProductIDDELETE] = React.useState("");
+
   const [openModal, setOpenModal] = React.useState(false);
 
   const handleOpen = () => {
@@ -177,6 +179,16 @@ const Dashboard = (props) => {
 
   const handleClose2 = () => {
     setOpenModal2(false);
+  };
+
+  const [openModal3, setOpenModal3] = React.useState(false);
+
+  const handleOpen3 = () => {
+    setOpenModal3(true);
+  };
+
+  const handleClose3 = () => {
+    setOpenModal3(false);
   };
 
   return (
@@ -404,9 +416,75 @@ const Dashboard = (props) => {
                     }}>
             EDITAR
           </Button>
+          
 </Grid>
         </Box>
           </Modal>
+          <Grid container justifyContent="center">
+          <Button
+              variant="contained"
+              color="secondary"
+              className={classes.submit}
+              onClick={handleOpen3}
+            >
+              Inactivar producto
+            </Button>
+            <Modal
+            open={openModal3}
+            onClose={handleClose3}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Inactivar producto
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            En esta sección tienes permitido dar de baja un producto que ya no se encuentra en inventario real
+          </Typography>
+          <p id="simple-modal-description">
+            Por favor escriba el ID del Producto a dar de baja
+          </p>
+          <div>
+          <TextField value={productIDDELETE}  onChange={(event) => {setProductIDDELETE(event.target.value)}}/>
+          </div>
+          <Grid container justifyContent="center">
+          <Button variant="contained"
+                    color="secondary"
+                    onClick={async () => {
+                      let object_product = {
+                        productoId: parseInt(productIDDELETE),
+                        productoEstado: 0
+                      }
+                      const response = await fetch(`http://localhost:8080/productos/editar`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json"},
+                      body: JSON.stringify(object_product)
+                    })
+                    if(response.status === 200) {
+                      handleClose3()
+                      Swal.fire(
+                        'Producto inactivado',
+                        'Producto dado de baja exitosamente!',
+                        'success'
+                      )
+                      setTimeout(function(){ window.location.reload(); }, 1500);
+                    } else {
+                      handleClose3()
+                      Swal.fire(
+                        'Error al inactivar producto',
+                        'Hubo un error dando de baja el producto',
+                        'error'
+                      )
+                    }
+                    }}>
+            DAR DE BAJA
+          </Button>
+          
+</Grid>
+        </Box>
+          </Modal>
+          </Grid>
           <Box pt={4}>
             <Copyright />
           </Box>
