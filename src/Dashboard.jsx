@@ -20,6 +20,12 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems, secondaryListItems } from './listItems';
 import Productos from './Productos';
 import withRoot from './withRoot';
+import NotFound from './NotFound';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import Swal from 'sweetalert2';
+import Button from '@material-ui/core/Button';
+import Modal from '@material-ui/core/Modal';
+import TextField from '@material-ui/core/TextField';
 
 function Copyright() {
     return (
@@ -115,7 +121,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Dashboard = () => {
+const Dashboard = (props) => {
+
+  
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -126,8 +147,28 @@ const Dashboard = () => {
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
+  const [openModal, setOpenModal] = React.useState(false);
+
+  const [productName, setProductName] = React.useState("");
+  const [productInfo, setProductInfo] = React.useState("");
+  const [productPrice, setProductPrice] = React.useState("");
+  const [productPrice2, setProductPrice2] = React.useState("");
+  const [productQty, setProductQty] = React.useState("");
+
+
+  const handleOpen = () => {
+    setOpenModal(true);
+  };
+
+  const handleClose = () => {
+    setOpenModal(false);
+  };
+
   return (
-    <div className={classes.root}>
+    <div>
+      {
+        typeof(localStorage.trabajadorId) === 'string' ?
+        <div className={classes.root}>
       <CssBaseline />
       <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
         <Toolbar className={classes.toolbar}>
@@ -143,6 +184,26 @@ const Dashboard = () => {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Inventario
           </Typography>
+          <IconButton color="inherit">
+              <Badge color="secondary" onClick={() => {
+                Swal.fire({
+                  title: 'Deseas cerrar sesión?',
+                  showDenyButton: true,
+                  confirmButtonText: `Cerrar Sesión`,
+                  denyButtonText: `NO Cerrar Sesión`,
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    localStorage.clear();
+                    Swal.fire('Cerraste sesión exitosamente', '', 'success')
+                    props.history.push('/');
+                  } else if (result.isDenied) {
+                    Swal.fire('No cerraste sesión', '', 'error')
+                  }
+                })
+              }}>
+                <ExitToAppIcon />
+              </Badge>
+            </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -165,8 +226,89 @@ const Dashboard = () => {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
+        <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={handleOpen}
+            >
+              Crear Producto
+            </Button>
+            <Modal
+            open={openModal}
+            onClose={handleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Crear producto
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            En esta sección tienes permitido crear productos
+          </Typography>
+          <p id="simple-modal-description">
+            Por favor escriba el nombre del Producto
+          </p>
+          <div>
+          <TextField value={productName}  onChange={(event) => {setProductName(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba la Descripción del Producto
+          </p>
+      <TextField value={productInfo}  onChange={(event) => {setProductInfo(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba el precio del Producto de compra a Proveedor
+          </p>
+      <TextField value={productPrice}  onChange={(event) => {setProductPrice(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba el precio del Producto de venta al Público
+          </p>
+      <TextField value={productPrice2}  onChange={(event) => {setProductPrice2(event.target.value)}}/>
+      <p id="simple-modal-description">
+            Por favor escriba la cantidad de existencias del Producto
+          </p>
+      <TextField value={productQty} onChange={(event) => {setProductQty(event.target.value)}}/>
+          </div>
+          <Grid container justifyContent="center">
+          <Button variant="contained"
+                    color="secondary"
+                    onClick={async () => {
+                      let object_product = {
+                        productoNombre: productName,
+                        productoDescripcion: productInfo,
+                        productoPrecioProveedor: parseInt(productPrice),
+                        productoPrecio: parseInt(productPrice2),
+                        productoExistencias: parseInt(productQty)
+                      }
+                      const response = await fetch(`http://localhost:8080/productos/crear`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json"},
+                      body: JSON.stringify(object_product)
+                    })
+                    if(response.status === 200) {
+                      handleClose()
+                      Swal.fire(
+                        'Producto creado',
+                        'Producto creado exitosamente!',
+                        'success'
+                      )
+                      setTimeout(function(){ window.location.reload(); }, 1500);
+                    } else {
+                      handleClose()
+                      Swal.fire(
+                        'Error al crear producto',
+                        'Hubo un error creando el producto',
+                        'error'
+                      )
+                    }
+                    }}>
+            CREAR 
+          </Button>
+</Grid>
+        </Box>
+          </Modal>
           <Grid container spacing={3}>
-            {/* Recent Orders */}
             <Grid item xs={12}>
               <Paper className={classes.paper}>
                 <Productos />
@@ -178,7 +320,9 @@ const Dashboard = () => {
           </Box>
         </Container>
       </main>
-    </div>
+    </div> : <NotFound />
+      }
+  </div>
   );
 }
 

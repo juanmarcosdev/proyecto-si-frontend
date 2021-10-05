@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -13,14 +12,6 @@ function createData(id, date, name, price_buy, price_sell, amount) {
   return { id, date, name, price_buy, price_sell, amount };
 }
 
-const rows = [
-  createData(0, '16 Mar, 2019', 'Chocoramo', 600, 1200, 10 ),
-  createData(1, '16 Mar, 2019', 'Huevos', 7000, 14000, 7),
-  createData(2, '16 Mar, 2019', 'Papel Higiénico', 2000, 3000, 20),
-  createData(3, '16 Mar, 2019', 'Postobon', 2100, 3500, 12),
-  createData(4, '15 Mar, 2019', 'Shampoo', 10000, 15000, 5),
-];
-
 function preventDefault(event) {
   event.preventDefault();
 }
@@ -32,6 +23,44 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Productos() {
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
+  const [dataProductos, setDataProductos] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('http://localhost:8080/productos/listar', 
+    {
+      method: 'GET',
+      headers: { "Content-Type": "application/json"
+               },
+    }).then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setDataProductos(data);
+      })
+  }, []);
+
+  const [openModal, setOpenModal] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpenModal(true);
+  };
+
+  const handleClose = () => {
+    setOpenModal(false);
+  };
+
   const classes = useStyles();
   return (
     <React.Fragment>
@@ -39,23 +68,23 @@ export default function Productos() {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Fecha de vencimiento</TableCell>
+            <TableCell>Fecha de creación</TableCell>
             <TableCell>ID</TableCell>
             <TableCell>Nombre</TableCell>
             <TableCell>Precio de compra a proveedor</TableCell>
             <TableCell>Precio de venta a público</TableCell>
-            <TableCell align="right">Cantidad disponible</TableCell>
+            <TableCell>Cantidad disponible</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.id}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.price_buy}</TableCell>
-              <TableCell>{row.price_sell}</TableCell>
-              <TableCell align="right">{row.amount}</TableCell>
+          {dataProductos.map((row) => (
+            <TableRow key={row.productoId}>
+              <TableCell>{row.productoFechaCreacion}</TableCell>
+              <TableCell>{row.productoId}</TableCell>
+              <TableCell>{row.productoNombre}</TableCell>
+              <TableCell>{row.productoPrecioProveedor}</TableCell>
+              <TableCell>{row.productoPrecio}</TableCell>
+              <TableCell>{row.productoExistencias}</TableCell>
             </TableRow>
           ))}
         </TableBody>

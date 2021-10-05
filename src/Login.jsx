@@ -11,6 +11,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import withRoot from './withRoot';
+import Swal from 'sweetalert2';
 
 function Copyright() {
   return (
@@ -59,6 +60,36 @@ const useStyles = makeStyles((theme) => ({
 const Login = (props) => {
   const classes = useStyles();
 
+  const [document, setDocument] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log(document)
+    console.log(password)
+    const response = await fetch(`http://localhost:8080/trabajadores/loggin`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json"},
+      body: JSON.stringify({ documento: document, contrasena: password })
+    }).then(res => res.json()).then(data => {
+      if(data.status === 500) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Inicio de sesión Fallido',
+        })
+      } else {
+        localStorage.setItem('trabajadorId', data.trabajadorId)
+        Swal.fire(
+          'Inicio de Sesión exitoso',
+          'Iniciaste sesión como Trabajor de la tienda exitosamente',
+          'success'
+        )
+        props.history.push('/inventario');
+      }
+    })
+  }
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -71,15 +102,16 @@ const Login = (props) => {
           <Typography component="h1" variant="h5">
             Ingresar a Sistema de Inventario
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form} onSubmit={handleSubmit} noValidate>
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              id="cedula"
-              label="Cédula"
-              name="cedula"
+              id="documento"
+              label="Número de documento"
+              name="documento"
+              onChange={(event) => {setDocument(event.target.value)}}
               autoFocus
             />
             <TextField
@@ -91,14 +123,14 @@ const Login = (props) => {
               label="Contraseña"
               type="password"
               id="password"
+              onChange={(event) => {setPassword(event.target.value)}}
             />
             <Button
+              type='submit'
               fullWidth
               variant="contained"
               color="primary"
-              onClick={() => {
-                props.history.push('/inventario');
-              }}
+              className={classes.submit}
             >
               Iniciar Sesión
             </Button>
