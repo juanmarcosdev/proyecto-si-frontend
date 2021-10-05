@@ -19,6 +19,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems, secondaryListItems } from './listItems';
 import Productos from './Productos';
+import Ventas from './Ventas';
 import withRoot from './withRoot';
 import NotFound from './NotFound';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -26,6 +27,7 @@ import Swal from 'sweetalert2';
 import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
 import TextField from '@material-ui/core/TextField';
+import { Bar, Pie } from 'react-chartjs-2';
 
 function Copyright() {
     return (
@@ -123,6 +125,63 @@ const useStyles = makeStyles((theme) => ({
 
 const Dashboard = (props) => {
 
+  const backgroundArrayColors = [
+    'rgba(255, 99, 132, 0.2)',
+    'rgba(54, 162, 235, 0.2)',
+    'rgba(255, 206, 86, 0.2)',
+    'rgba(75, 192, 192, 0.2)',
+    'rgba(153, 102, 255, 0.2)',
+    'rgba(255, 159, 64, 0.2)',
+    'rgba(63, 189, 0, 0.2)',
+    'rgba(151, 0, 201, 0.2)',
+    'rgba(246, 255, 0, 0.2)',
+    'rgba(255, 0, 0, 0.2)',
+    'rgba(255, 153, 0, 0.2)',
+    'rgba(255, 251, 120, 0.2)',
+    'rgba(200, 225, 73, 0.2)',
+    'rgba(60, 51, 187, 0.2)',
+    'rgba(126, 75, 77, 0.2)',
+    'rgba(141, 247, 155, 0.2)',
+    'rgba(249, 108, 185, 0.2)',
+    'rgba(218, 116, 8, 0.2)',
+    'rgba(57, 195, 158, 0.2)',
+    'rgba(31, 33, 104, 0.2)',
+  ];
+  const borderArrayColors = [
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 159, 64, 1)',
+    'rgba(63, 189, 0, 1)',
+    'rgba(151, 0, 201, 1)',
+    'rgba(246, 255, 0, 1)',
+    'rgba(255, 0, 0, 1)',
+    'rgba(255, 153, 0, 1)',
+    'rgba(255, 251, 120, 1)',
+    'rgba(200, 225, 73, 1)',
+    'rgba(60, 51, 187, 1)',
+    'rgba(126, 75, 77, 1)',
+    'rgba(141, 247, 155, 1)',
+    'rgba(249, 108, 185, 1)',
+    'rgba(218, 116, 8, 1)',
+    'rgba(57, 195, 158, 1)',
+    'rgba(31, 33, 104, 1)',
+  ];
+
+  const options = {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  }
+
   
 
   const style = {
@@ -192,6 +251,105 @@ const Dashboard = (props) => {
   };
 
   const [saleId, setSaleId] = React.useState(0);
+
+  const [ventasMes, setVentasMes] = React.useState(0);
+
+   React.useEffect(() => {
+     fetch('http://localhost:8080/graficos/ventasMes', 
+     {
+       method: 'GET',
+       headers: { "Content-Type": "application/json"
+                },
+     }).then(res => res.json())
+       .then(data => {
+         console.log(data)
+         localStorage.setItem("ventasMes", data[0].ventas_valor)
+       })
+   }, []);
+
+  const [dataReporte1, setDataReporte1] = React.useState([])
+
+  React.useEffect(() => {
+    fetch('http://localhost:8080/graficos/masVendidos', 
+    {
+      method: 'GET',
+      headers: { "Content-Type": "application/json"
+               },
+    }).then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setDataReporte1(data)
+      })
+  }, []);
+
+  const dataChartReporte1 = {
+    labels: dataReporte1.map(a => a.producto_nombre),
+    datasets: [
+      {
+        label: '# de Ventas',
+        data: dataReporte1.map(a => a.ventas_producto),
+        backgroundColor: backgroundArrayColors,
+        borderColor: borderArrayColors,
+        borderWidth: 1,
+      },
+    ],
+  }
+
+  const [dataReporte2, setDataReporte2] = React.useState([])
+
+  React.useEffect(() => {
+    fetch('http://localhost:8080/graficos/menosVendidos', 
+    {
+      method: 'GET',
+      headers: { "Content-Type": "application/json"
+               },
+    }).then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setDataReporte2(data)
+      })
+  }, []);
+
+  const dataChartReporte2 = {
+    labels: dataReporte2.map(a => a.producto_nombre),
+    datasets: [
+      {
+        label: '# de Ventas',
+        data: dataReporte2.map(a => a.ventas_producto),
+        backgroundColor: backgroundArrayColors,
+        borderColor: borderArrayColors,
+        borderWidth: 1,
+      },
+    ],
+  }
+
+  const [dataReporte3, setDataReporte3] = React.useState([])
+
+  React.useEffect(() => {
+    fetch('http://localhost:8080/graficos/productosRenovar', 
+    {
+      method: 'GET',
+      headers: { "Content-Type": "application/json"
+               },
+    }).then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setDataReporte3(data)
+      })
+  }, []);
+
+  const dataChartReporte3 = {
+    labels: dataReporte3.map(a => a.producto_nombre),
+    datasets: [
+      {
+        label: '# de Existencias',
+        data: dataReporte3.map(a => a.producto_existencias),
+        backgroundColor: backgroundArrayColors,
+        borderColor: borderArrayColors,
+        borderWidth: 1,
+      },
+    ],
+  }
 
   return (
     <div>
@@ -602,6 +760,28 @@ const Dashboard = (props) => {
 </Grid>
         </Box>
           </Modal>
+          </Grid>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper className={classes.paper}>
+                <Ventas />
+              </Paper>
+            </Grid>
+          </Grid>
+          <Grid container justifyContent="center">
+            <Typography component="h1" variant="h6" color="inherit">CIERRE DE CAJA MES ACTUAL: $ {localStorage.ventasMes} COP </Typography>
+          </Grid>
+          <Grid container justifyContent="center">
+            <Typography component="h1" variant="h6" color="inherit">Reporte de productos más vendidos</Typography>
+              <Pie data={dataChartReporte1} options={options} />
+          </Grid>
+          <Grid container justifyContent="center">
+            <Typography component="h1" variant="h6" color="inherit">Reporte de productos menos vendidos</Typography>
+              <Bar data={dataChartReporte2} options={options} />
+          </Grid>
+          <Grid container justifyContent="center">
+            <Typography component="h1" variant="h6" color="inherit">Reporte de productos que agotarán existencias</Typography>
+              <Bar data={dataChartReporte3} options={options} />
           </Grid>
           <Box pt={4}>
             <Copyright />

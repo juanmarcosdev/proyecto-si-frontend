@@ -7,10 +7,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Title from './Title';
 
-// Generate Order Data
-function createData(id, date, name, price_buy, price_sell, amount) {
-  return { id, date, name, price_buy, price_sell, amount };
-}
 
 function preventDefault(event) {
   event.preventDefault();
@@ -22,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Productos() {
+export default function Ventas() {
 
   const style = {
     position: 'absolute',
@@ -36,10 +32,10 @@ export default function Productos() {
     p: 4,
   };
 
-  const [dataProductos, setDataProductos] = React.useState([]);
+  const [dataVentas, setDataVentas] = React.useState([]);
 
   React.useEffect(() => {
-    fetch('http://localhost:8080/productos/listar', 
+    fetch('http://localhost:8080/ventas/listar', 
     {
       method: 'GET',
       headers: { "Content-Type": "application/json"
@@ -47,34 +43,28 @@ export default function Productos() {
     }).then(res => res.json())
       .then(data => {
         console.log(data)
-        setDataProductos(data);
+        setDataVentas(data);
       })
   }, []);
   
   const classes = useStyles();
   return (
     <React.Fragment>
-      <Title>Productos disponibles en Inventario</Title>
+      <Title>Ventas realizadas en el Sistema</Title>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Fecha de creación</TableCell>
+            <TableCell>Fecha de venta</TableCell>
             <TableCell>ID</TableCell>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Precio de compra a proveedor</TableCell>
-            <TableCell>Precio de venta a público</TableCell>
-            <TableCell>Cantidad disponible</TableCell>
+            <TableCell>Total de Venta</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {dataProductos.map((row) => (
-            <TableRow key={row.productoId}>
-              <TableCell>{row.productoFechaCreacion}</TableCell>
-              <TableCell>{row.productoId}</TableCell>
-              <TableCell>{row.productoNombre}</TableCell>
-              <TableCell>{row.productoPrecioProveedor}</TableCell>
-              <TableCell>{row.productoPrecio}</TableCell>
-              <TableCell>{row.productoExistencias}</TableCell>
+          {dataVentas.map((row) => (
+            <TableRow key={row.ventaId}>
+              <TableCell>{row.ventaFecha}</TableCell>
+              <TableCell>{row.ventaId}</TableCell>
+              <TableCell>{row.ventaTotal}</TableCell>
             </TableRow>
           ))}
         </TableBody>

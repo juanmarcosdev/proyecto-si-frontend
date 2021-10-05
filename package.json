@@ -12,12 +12,15 @@
     "@material-ui/core": "latest",
     "@material-ui/icons": "^4.11.2",
     "@material/icon-button": "^13.0.0",
+    "chart.js": "^3.5.1",
     "clsx": "latest",
     "express": "^4.17.1",
     "react": "latest",
+    "react-chartjs-2": "^3.0.5",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "latest",
+    "reactchartjs": "^0.7.3",
     "sweetalert2": "^11.1.7"
   },
   "browserslist": {
